@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Hunter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>&#128269; Job Hunter</h1>
+      <p class="subtitle">Find companies hiring in tech &mdash; results saved for future searches</p>
+    </header>
+
+    <details class="applications-panel">
+      <summary>
+        My Applications
+        {% if panel_applications %}
+          <span class="count">{{ panel_applications | length }}</span>
+        {% endif %}
+        <span class="panel-arrow">&#9656;</span>
+      </summary>
+      <div class="panel-body">
+        {% if panel_applications %}
+          <table class="results-table">
+            <thead>
+              <tr><th>Company</th><th>Position</th><th>Careers Page</th><th>Date Sent</th></tr>
+            </thead>
+            <tbody>
+              {% for a in panel_applications %}
+              <tr>
+                <td class="company-name">{{ a.company_name }}</td>
+                <td>{{ a.position }}</td>
+                <td><a href="{{ a.careers_url }}" target="_blank" rel="noopener noreferrer">{{ a.careers_url }}</a></td>
+                <td class="date">{{ a.applied_at[:10] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="no-results">No applications tracked yet. Mark a company as applied from the search results.</p>
+        {% endif %}
+      </div>
+    </details>
+
+    <form method="POST" action="/search" class="search-form">
+      <div class="form-row">
+        <div class="field field-titles">
+          <label>Job Title <span class="required">*</span></label>
+          <div class="checkbox-list">
+
+            <span class="checkbox-group-label">Software Engineering</span>
+            <label class="checkbox-item" data-tooltip="Designs and maintains server-side APIs, databases, and business logic."><input type="checkbox" name="job_title" value="Backend Engineer"          {% if 'Backend Engineer'          in (selected_titles or []) %}checked{% endif %}> Backend Engineer</label>
+            <label class="checkbox-item" data-tooltip="Builds the visual, interactive parts of web applications that users see."><input type="checkbox" name="job_title" value="Frontend Engineer"         {% if 'Frontend Engineer'         in (selected_titles or []) %}checked{% endif %}> Frontend Engineer</label>
+            <label class="checkbox-item" data-tooltip="Works across both the frontend UI and backend services of an application."><input type="checkbox" name="job_title" value="Full Stack Engineer"       {% if 'Full Stack Engineer'       in (selected_titles or []) %}checked{% endif %}> Full Stack Engineer</label>
+            <label class="checkbox-item" data-tooltip="Creates apps for iOS and Android smartphones and tablets."><input type="checkbox" name="job_title" value="Mobile Developer"          {% if 'Mobile Developer'          in (selected_titles or []) %}checked{% endif %}> Mobile Developer</label>
+            <label class="checkbox-item" data-tooltip="Builds native applications for Apple iPhone and iPad, typically using Swift."><input type="checkbox" name="job_title" value="iOS Developer"             {% if 'iOS Developer'             in (selected_titles or []) %}checked{% endif %}> iOS Developer</label>
+            <label class="checkbox-item" data-tooltip="Builds native applications for Android devices using Kotlin or Java."><input type="checkbox" name="job_title" value="Android Developer"         {% if 'Android Developer'         in (selected_titles or []) %}checked{% endif %}> Android Developer</label>
+            <label class="checkbox-item" data-tooltip="Programs software that runs directly on hardware devices and microcontrollers."><input type="checkbox" name="job_title" value="Embedded Systems Engineer" {% if 'Embedded Systems Engineer' in (selected_titles or []) %}checked{% endif %}> Embedded Systems Engineer</label>
+            <label class="checkbox-item" data-tooltip="Designs and codes video games and interactive simulations."><input type="checkbox" name="job_title" value="Game Developer"            {% if 'Game Developer'            in (selected_titles or []) %}checked{% endif %}> Game Developer</label>
+            <label class="checkbox-item" data-tooltip="Builds decentralized applications and smart contracts on blockchain networks."><input type="checkbox" name="job_title" value="Blockchain Developer"      {% if 'Blockchain Developer'      in (selected_titles or []) %}checked{% endif %}> Blockchain Developer</label>
+            <label class="checkbox-item" data-tooltip="Creates augmented and virtual reality experiences and applications."><input type="checkbox" name="job_title" value="AR/VR Developer"           {% if 'AR/VR Developer'           in (selected_titles or []) %}checked{% endif %}> AR/VR Developer</label>
+            <label class="checkbox-item" data-tooltip="Defines the high-level structure and technical direction of software systems."><input type="checkbox" name="job_title" value="Software Architect"        {% if 'Software Architect'        in (selected_titles or []) %}checked{% endif %}> Software Architect</label>
+
+            <span class="checkbox-group-label">Data &amp; AI</span>
+            <label class="checkbox-item" data-tooltip="Uses statistics and ML to extract insights and predictions from large datasets."><input type="checkbox" name="job_title" value="Data Scientist"            {% if 'Data Scientist'            in (selected_titles or []) %}checked{% endif %}> Data Scientist</label>
+            <label class="checkbox-item" data-tooltip="Builds and maintains pipelines and infrastructure for collecting and processing data."><input type="checkbox" name="job_title" value="Data Engineer"             {% if 'Data Engineer'             in (selected_titles or []) %}checked{% endif %}> Data Engineer</label>
+            <label class="checkbox-item" data-tooltip="Analyzes data to identify trends and support business decision-making."><input type="checkbox" name="job_title" value="Data Analyst"              {% if 'Data Analyst'              in (selected_titles or []) %}checked{% endif %}> Data Analyst</label>
+            <label class="checkbox-item" data-tooltip="Creates dashboards and reports to visualize and track business performance."><input type="checkbox" name="job_title" value="Business Intelligence Analyst" {% if 'Business Intelligence Analyst' in (selected_titles or []) %}checked{% endif %}> Business Intelligence Analyst</label>
+            <label class="checkbox-item" data-tooltip="Builds, trains, and deploys machine learning models into production systems."><input type="checkbox" name="job_title" value="Machine Learning Engineer" {% if 'Machine Learning Engineer' in (selected_titles or []) %}checked{% endif %}> Machine Learning Engineer</label>
+            <label class="checkbox-item" data-tooltip="Develops AI-powered applications and integrates large language models into products."><input type="checkbox" name="job_title" value="AI Engineer"               {% if 'AI Engineer'               in (selected_titles or []) %}checked{% endif %}> AI Engineer</label>
+            <label class="checkbox-item" data-tooltip="Conducts original research to advance AI and machine learning methods."><input type="checkbox" name="job_title" value="Research Scientist"        {% if 'Research Scientist'        in (selected_titles or []) %}checked{% endif %}> Research Scientist</label>
+            <label class="checkbox-item" data-tooltip="Installs, configures, and optimizes relational and non-relational database systems."><input type="checkbox" name="job_title" value="Database Administrator"    {% if 'Database Administrator'    in (selected_titles or []) %}checked{% endif %}> Database Administrator</label>
+
+            <span class="checkbox-group-label">Infrastructure &amp; Security</span>
+            <label class="checkbox-item" data-tooltip="Automates CI/CD pipelines and bridges the gap between development and operations."><input type="checkbox" name="job_title" value="DevOps Engineer"           {% if 'DevOps Engineer'           in (selected_titles or []) %}checked{% endif %}> DevOps Engineer</label>
+            <label class="checkbox-item" data-tooltip="Keeps large-scale systems reliable, fast, and highly available in production."><input type="checkbox" name="job_title" value="Site Reliability Engineer" {% if 'Site Reliability Engineer' in (selected_titles or []) %}checked{% endif %}> Site Reliability Engineer</label>
+            <label class="checkbox-item" data-tooltip="Designs and manages cloud infrastructure on AWS, GCP, or Azure."><input type="checkbox" name="job_title" value="Cloud Engineer"            {% if 'Cloud Engineer'            in (selected_titles or []) %}checked{% endif %}> Cloud Engineer</label>
+            <label class="checkbox-item" data-tooltip="Builds internal developer tools, shared services, and infrastructure platforms."><input type="checkbox" name="job_title" value="Platform Engineer"         {% if 'Platform Engineer'         in (selected_titles or []) %}checked{% endif %}> Platform Engineer</label>
+            <label class="checkbox-item" data-tooltip="Designs, implements, and maintains computer networks and connectivity infrastructure."><input type="checkbox" name="job_title" value="Network Engineer"          {% if 'Network Engineer'          in (selected_titles or []) %}checked{% endif %}> Network Engineer</label>
+            <label class="checkbox-item" data-tooltip="Manages and maintains servers, operating systems, and IT infrastructure."><input type="checkbox" name="job_title" value="Systems Administrator"     {% if 'Systems Administrator'     in (selected_titles or []) %}checked{% endif %}> Systems Administrator</label>
+            <label class="checkbox-item" data-tooltip="Builds secure systems and defends applications against cyber threats."><input type="checkbox" name="job_title" value="Security Engineer"         {% if 'Security Engineer'         in (selected_titles or []) %}checked{% endif %}> Security Engineer</label>
+            <label class="checkbox-item" data-tooltip="Monitors systems for threats and responds to security incidents and breaches."><input type="checkbox" name="job_title" value="Cybersecurity Analyst"     {% if 'Cybersecurity Analyst'     in (selected_titles or []) %}checked{% endif %}> Cybersecurity Analyst</label>
+            <label class="checkbox-item" data-tooltip="Simulates real-world cyberattacks to find and report security vulnerabilities."><input type="checkbox" name="job_title" value="Penetration Tester"        {% if 'Penetration Tester'        in (selected_titles or []) %}checked{% endif %}> Penetration Tester</label>
+
+            <span class="checkbox-group-label">Design &amp; UX</span>
+            <label class="checkbox-item" data-tooltip="Researches user needs and designs intuitive flows and experiences."><input type="checkbox" name="job_title" value="UX Designer"               {% if 'UX Designer'               in (selected_titles or []) %}checked{% endif %}> UX Designer</label>
+            <label class="checkbox-item" data-tooltip="Creates the visual look and feel of interfaces — buttons, layouts, and components."><input type="checkbox" name="job_title" value="UI Designer"               {% if 'UI Designer'               in (selected_titles or []) %}checked{% endif %}> UI Designer</label>
+            <label class="checkbox-item" data-tooltip="Combines UX and UI thinking to shape the complete end-to-end product experience."><input type="checkbox" name="job_title" value="Product Designer"          {% if 'Product Designer'          in (selected_titles or []) %}checked{% endif %}> Product Designer</label>
+            <label class="checkbox-item" data-tooltip="Produces visual content for branding, marketing campaigns, and media."><input type="checkbox" name="job_title" value="Graphic Designer"          {% if 'Graphic Designer'          in (selected_titles or []) %}checked{% endif %}> Graphic Designer</label>
+
+            <span class="checkbox-group-label">Product &amp; Management</span>
+            <label class="checkbox-item" data-tooltip="Defines the product vision, roadmap, and prioritizes features across teams."><input type="checkbox" name="job_title" value="Product Manager"           {% if 'Product Manager'           in (selected_titles or []) %}checked{% endif %}> Product Manager</label>
+            <label class="checkbox-item" data-tooltip="Plans, tracks, and delivers projects on time and within scope and budget."><input type="checkbox" name="job_title" value="Project Manager"           {% if 'Project Manager'           in (selected_titles or []) %}checked{% endif %}> Project Manager</label>
+            <label class="checkbox-item" data-tooltip="Facilitates agile ceremonies and removes blockers for the development team."><input type="checkbox" name="job_title" value="Scrum Master"              {% if 'Scrum Master'              in (selected_titles or []) %}checked{% endif %}> Scrum Master</label>
+            <label class="checkbox-item" data-tooltip="Bridges business requirements and technical solutions through analysis and documentation."><input type="checkbox" name="job_title" value="Business Analyst"          {% if 'Business Analyst'          in (selected_titles or []) %}checked{% endif %}> Business Analyst</label>
+            <label class="checkbox-item" data-tooltip="Tests software to find bugs and ensure quality before features reach users."><input type="checkbox" name="job_title" value="QA Engineer"               {% if 'QA Engineer'               in (selected_titles or []) %}checked{% endif %}> QA Engineer</label>
+            <label class="checkbox-item" data-tooltip="Writes documentation, API guides, tutorials, and user manuals for technical products."><input type="checkbox" name="job_title" value="Technical Writer"          {% if 'Technical Writer'          in (selected_titles or []) %}checked{% endif %}> Technical Writer</label>
+
+            <span class="checkbox-group-label">Customer &amp; Support</span>
+            <label class="checkbox-item" data-tooltip="Helps customers resolve issues, answers questions, and provides product guidance."><input type="checkbox" name="job_title" value="Customer Support"          {% if 'Customer Support'          in (selected_titles or []) %}checked{% endif %}> Customer Support</label>
+            <label class="checkbox-item" data-tooltip="Ensures customers achieve their goals and get maximum value from the product."><input type="checkbox" name="job_title" value="Customer Success Manager"  {% if 'Customer Success Manager'  in (selected_titles or []) %}checked{% endif %}> Customer Success Manager</label>
+            <label class="checkbox-item" data-tooltip="Troubleshoots complex technical problems for customers and escalates critical issues."><input type="checkbox" name="job_title" value="Technical Support Engineer"{% if 'Technical Support Engineer' in (selected_titles or []) %}checked{% endif %}> Technical Support Engineer</label>
+            <label class="checkbox-item" data-tooltip="Designs and presents technical solutions tailored to specific client needs."><input type="checkbox" name="job_title" value="Solutions Engineer"        {% if 'Solutions Engineer'        in (selected_titles or []) %}checked{% endif %}> Solutions Engineer</label>
+            <label class="checkbox-item" data-tooltip="Supports the sales process with technical expertise, demos, and proof-of-concepts."><input type="checkbox" name="job_title" value="Sales Engineer"            {% if 'Sales Engineer'            in (selected_titles or []) %}checked{% endif %}> Sales Engineer</label>
+            <label class="checkbox-item" data-tooltip="Manages ongoing client relationships, renewals, and account growth."><input type="checkbox" name="job_title" value="Account Manager"           {% if 'Account Manager'           in (selected_titles or []) %}checked{% endif %}> Account Manager</label>
+
+            <span class="checkbox-group-label">Business &amp; Operations</span>
+            <label class="checkbox-item" data-tooltip="Oversees hiring processes, employee relations, and HR policies and programs."><input type="checkbox" name="job_title" value="HR Manager"                {% if 'HR Manager'                in (selected_titles or []) %}checked{% endif %}> HR Manager</label>
+            <label class="checkbox-item" data-tooltip="Sources, screens, and interviews candidates to fill open positions."><input type="checkbox" name="job_title" value="Recruiter"                 {% if 'Recruiter'                 in (selected_titles or []) %}checked{% endif %}> Recruiter</label>
+            <label class="checkbox-item" data-tooltip="Plans and executes marketing campaigns, messaging, and go-to-market strategy."><input type="checkbox" name="job_title" value="Marketing Manager"         {% if 'Marketing Manager'         in (selected_titles or []) %}checked{% endif %}> Marketing Manager</label>
+            <label class="checkbox-item" data-tooltip="Runs rapid experiments with creative strategies to drive user or revenue growth."><input type="checkbox" name="job_title" value="Growth Hacker"             {% if 'Growth Hacker'             in (selected_titles or []) %}checked{% endif %}> Growth Hacker</label>
+            <label class="checkbox-item" data-tooltip="Creates blog posts, website copy, and written marketing and product materials."><input type="checkbox" name="job_title" value="Content Writer"            {% if 'Content Writer'            in (selected_titles or []) %}checked{% endif %}> Content Writer</label>
+            <label class="checkbox-item" data-tooltip="Analyzes financial data to support budgeting, forecasting, and business planning."><input type="checkbox" name="job_title" value="Finance Analyst"           {% if 'Finance Analyst'           in (selected_titles or []) %}checked{% endif %}> Finance Analyst</label>
+            <label class="checkbox-item" data-tooltip="Oversees day-to-day business processes and improves team efficiency and workflows."><input type="checkbox" name="job_title" value="Operations Manager"        {% if 'Operations Manager'        in (selected_titles or []) %}checked{% endif %}> Operations Manager</label>
+
+          </div>
+          <small class="hint">Check one or more positions</small>
+        </div>
+        <div class="field">
+          <label for="location">Location</label>
+          <select id="location" name="location">
+            <option value="">Any location</option>
+            <option value="Remote"           {% if location == 'Remote'           %}selected{% endif %}>Remote</option>
+            <option value="Central Israel"   {% if location == 'Central Israel'   %}selected{% endif %}>All Central Israel Cities</option>
+            <optgroup label="Tel Aviv &amp; Inner Ring">
+              <option value="Tel Aviv"         {% if location == 'Tel Aviv'         %}selected{% endif %}>Tel Aviv</option>
+              <option value="Ramat Gan"        {% if location == 'Ramat Gan'        %}selected{% endif %}>Ramat Gan</option>
+              <option value="Givatayim"        {% if location == 'Givatayim'        %}selected{% endif %}>Givatayim</option>
+              <option value="Bnei Brak"        {% if location == 'Bnei Brak'        %}selected{% endif %}>Bnei Brak</option>
+              <option value="Bat Yam"          {% if location == 'Bat Yam'          %}selected{% endif %}>Bat Yam</option>
+              <option value="Holon"            {% if location == 'Holon'            %}selected{% endif %}>Holon</option>
+              <option value="Or Yehuda"        {% if location == 'Or Yehuda'        %}selected{% endif %}>Or Yehuda</option>
+              <option value="Yehud"            {% if location == 'Yehud'            %}selected{% endif %}>Yehud</option>
+            </optgroup>
+            <optgroup label="Sharon &amp; North Center">
+              <option value="Herzliya"         {% if location == 'Herzliya'         %}selected{% endif %}>Herzliya</option>
+              <option value="Ramat HaSharon"   {% if location == 'Ramat HaSharon'   %}selected{% endif %}>Ramat HaSharon</option>
+              <option value="Raanana"          {% if location == 'Raanana'          %}selected{% endif %}>Ra'anana</option>
+              <option value="Kfar Saba"        {% if location == 'Kfar Saba'        %}selected{% endif %}>Kfar Saba</option>
+              <option value="Hod HaSharon"     {% if location == 'Hod HaSharon'     %}selected{% endif %}>Hod HaSharon</option>
+              <option value="Netanya"          {% if location == 'Netanya'          %}selected{% endif %}>Netanya</option>
+              <option value="Even Yehuda"      {% if location == 'Even Yehuda'      %}selected{% endif %}>Even Yehuda</option>
+            </optgroup>
+            <optgroup label="East Center">
+              <option value="Petah Tikva"      {% if location == 'Petah Tikva'      %}selected{% endif %}>Petah Tikva</option>
+              <option value="Lod"              {% if location == 'Lod'              %}selected{% endif %}>Lod</option>
+              <option value="Ramla"            {% if location == 'Ramla'            %}selected{% endif %}>Ramla</option>
+              <option value="Modi'in"          {% if location == "Modi'in"          %}selected{% endif %}>Modi'in</option>
+            </optgroup>
+            <optgroup label="South Center">
+              <option value="Rishon LeZion"    {% if location == 'Rishon LeZion'    %}selected{% endif %}>Rishon LeZion</option>
+              <option value="Ness Ziona"       {% if location == 'Ness Ziona'       %}selected{% endif %}>Ness Ziona</option>
+              <option value="Rehovot"          {% if location == 'Rehovot'          %}selected{% endif %}>Rehovot</option>
+              <option value="Ashdod"           {% if location == 'Ashdod'           %}selected{% endif %}>Ashdod</option>
+            </optgroup>
+          </select>
+        </div>
+        <div class="field">
+          <label for="skills">Skills</label>
+          <input
+            type="text"
+            id="skills"
+            name="skills"
+            placeholder="e.g. Python, React"
+            value="{{ skills or '' }}"
+          />
+        </div>
+        <div class="field field-experience">
+          <label for="experience_years">Years of Experience</label>
+          <input
+            type="number"
+            id="experience_years"
+            name="experience_years"
+            min="0"
+            max="40"
+            value="{{ experience_years if experience_years is not none else 0 }}"
+          />
+        </div>
+      </div>
+      <button type="submit" class="btn-search">Search Jobs</button>
+    </form>
+
+    {% if error %}
+      <div class="alert alert-error">{{ error }}</div>
+    {% endif %}
+
+    {% if search_error %}
+      <div class="alert alert-warn">Search warning: {{ search_error }}</div>
+    {% endif %}
+
+    {% if results is defined %}
+      <section class="results-section">
+        <h2>
+          Results
+          <span class="count">{{ results | length }} found</span>
+        </h2>
+
+        {% if results %}
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Careers Page</th>
+                <th>Location</th>
+                <th>Source</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in results %}
+              <tr {% if r.application is defined %}class="row-applied"{% endif %}>
+                <td class="company-name">{{ r.company_name or r.name }}</td>
+                <td>
+                  <a href="{{ r.careers_url }}" target="_blank" rel="noopener noreferrer">
+                    {{ r.careers_url }}
+                  </a>
+                </td>
+                <td>{{ r.location or '&mdash;' }}</td>
+                <td>
+                  {% if r.from_cache %}
+                    <span class="badge badge-cached">From database</span>
+                  {% elif r.source == 'LinkedIn' %}
+                    <span class="badge badge-linkedin">LinkedIn</span>
+                  {% elif r.source == 'Google' %}
+                    <span class="badge badge-google">Google</span>
+                  {% else %}
+                    <span class="badge badge-ddg">DuckDuckGo</span>
+                  {% endif %}
+                </td>
+                <td class="status-cell">
+                  {% if r.application is defined %}
+                    <span class="applied-notice">
+                      You sent your resume for <strong>{{ r.application.position }}</strong>
+                      on {{ r.application.applied_at[:10] }}
+                    </span>
+                  {% else %}
+                    <form method="POST" action="/mark-applied" class="apply-form">
+                      <input type="hidden" name="company_name" value="{{ r.company_name or r.name }}">
+                      <input type="hidden" name="careers_url"  value="{{ r.careers_url }}">
+                      <input type="text"   name="position" placeholder="Position title" required class="apply-input">
+                      <button type="submit" class="btn-apply">Mark Applied</button>
+                    </form>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="no-results">No results found. Try a broader job title or different location.</p>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    {% if all_companies is defined %}
+      <section class="results-section">
+        <h2>All Saved Companies <span class="count">{{ all_companies | length }}</span></h2>
+        {% if all_companies %}
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Careers Page</th>
+                <th>Role Tags</th>
+                <th>Location</th>
+                <th>Added</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for c in all_companies %}
+              <tr>
+                <td class="company-name">{{ c.name }}</td>
+                <td><a href="{{ c.careers_url }}" target="_blank" rel="noopener noreferrer">{{ c.careers_url }}</a></td>
+                <td>{{ c.job_titles or '—' }}</td>
+                <td>{{ c.location or '—' }}</td>
+                <td class="date">{{ c.added_at[:10] if c.added_at else '—' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="no-results">No companies saved yet. Run a search first.</p>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    {% if all_applications is defined %}
+      <section class="results-section">
+        <h2>My Applications <span class="count">{{ all_applications | length }}</span></h2>
+        {% if all_applications %}
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Company</th>
+                <th>Position</th>
+                <th>Careers Page</th>
+                <th>Date Sent</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in all_applications %}
+              <tr>
+                <td class="company-name">{{ a.company_name }}</td>
+                <td>{{ a.position }}</td>
+                <td><a href="{{ a.careers_url }}" target="_blank" rel="noopener noreferrer">{{ a.careers_url }}</a></td>
+                <td class="date">{{ a.applied_at[:10] }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        {% else %}
+          <p class="no-results">No applications tracked yet. Mark a company as applied from the search results.</p>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    <footer>
+      <a href="/">New Search</a>
+      &nbsp;|&nbsp;
+      <a href="/companies">Saved Companies</a>
+      &nbsp;|&nbsp;
+      <a href="/applications">My Applications</a>
+    </footer>
+  </div>
+
+  <div id="job-tooltip" class="job-tooltip"></div>
+
+  <script>
+    const tooltip = document.getElementById('job-tooltip');
+    document.querySelectorAll('.checkbox-item[data-tooltip]').forEach(el => {
+      el.addEventListener('mouseenter', e => {
+        tooltip.textContent = e.currentTarget.dataset.tooltip;
+        tooltip.style.display = 'block';
+      });
+      el.addEventListener('mousemove', e => {
+        tooltip.style.left = (e.clientX + 16) + 'px';
+        tooltip.style.top  = (e.clientY - 36) + 'px';
+      });
+      el.addEventListener('mouseleave', () => {
+        tooltip.style.display = 'none';
+      });
+    });
+  </script>
+</body>
+</html>
