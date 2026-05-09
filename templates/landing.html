@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Hunter</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-icon">&#128269;</span>
+      <h1 class="auth-logo-text">Job Hunter</h1>
+      <p class="auth-logo-sub">Find tech companies hiring in Israel</p>
+    </div>
+
+    <div class="landing-actions">
+      <a href="{{ url_for('signin') }}" class="btn btn-primary btn-block">Sign In</a>
+      <a href="{{ url_for('signup') }}" class="btn btn-secondary btn-block">Create Account</a>
+      <form method="POST" action="{{ url_for('guest') }}">
+        <button type="submit" class="btn btn-ghost btn-block">Continue as Guest</button>
+      </form>
+      <p class="landing-guest-note">Guest mode: search only, applications not saved</p>
+    </div>
+  </div>
+</body>
+</html>

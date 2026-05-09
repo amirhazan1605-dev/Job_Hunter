@@ -7,47 +7,28 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 <body>
+
+  <nav class="navbar">
+    <a class="navbar-brand" href="/">&#128269; Job Hunter</a>
+    <div class="navbar-user">
+      {% if current_user %}
+        <span class="navbar-name">Hi, {{ current_user.first_name }}</span>
+        <a href="{{ url_for('signout') }}" class="navbar-link">Sign Out</a>
+      {% else %}
+        <span class="navbar-guest-tag">Guest</span>
+        <a href="{{ url_for('signin') }}" class="navbar-link">Sign In</a>
+        <a href="{{ url_for('signup') }}" class="btn btn-primary navbar-btn">Sign Up</a>
+      {% endif %}
+    </div>
+  </nav>
+
   <div class="container">
-    <header>
-      <h1>&#128269; Job Hunter</h1>
-      <p class="subtitle">Find companies hiring in tech &mdash; results saved for future searches</p>
-    </header>
 
-    <details class="applications-panel">
-      <summary>
-        My Applications
-        {% if panel_applications %}
-          <span class="count">{{ panel_applications | length }}</span>
-        {% endif %}
-        <span class="panel-arrow">&#9656;</span>
-      </summary>
-      <div class="panel-body">
-        {% if panel_applications %}
-          <table class="results-table">
-            <thead>
-              <tr><th>Company</th><th>Position</th><th>Careers Page</th><th>Date Sent</th></tr>
-            </thead>
-            <tbody>
-              {% for a in panel_applications %}
-              <tr>
-                <td class="company-name">{{ a.company_name }}</td>
-                <td>{{ a.position }}</td>
-                <td><a href="{{ a.careers_url }}" target="_blank" rel="noopener noreferrer">{{ a.careers_url }}</a></td>
-                <td class="date">{{ a.applied_at[:10] }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        {% else %}
-          <p class="no-results">No applications tracked yet. Mark a company as applied from the search results.</p>
-        {% endif %}
-      </div>
-    </details>
+    <form id="search-form" method="POST" action="/search" class="search-form">
+      <div class="form-panels">
 
-    <form method="POST" action="/search" class="search-form">
-      <div class="form-row">
-        <div class="field field-titles">
-          <label>Job Title <span class="required">*</span></label>
+        <div class="panel-titles">
+          <label class="panel-label">Job Title <span class="required">*</span></label>
           <div class="checkbox-list">
 
             <span class="checkbox-group-label">Software Engineering</span>
@@ -118,69 +99,95 @@
           </div>
           <small class="hint">Check one or more positions</small>
         </div>
-        <div class="field">
-          <label for="location">Location</label>
-          <select id="location" name="location">
-            <option value="">Any location</option>
-            <option value="Remote"           {% if location == 'Remote'           %}selected{% endif %}>Remote</option>
-            <option value="Central Israel"   {% if location == 'Central Israel'   %}selected{% endif %}>All Central Israel Cities</option>
-            <optgroup label="Tel Aviv &amp; Inner Ring">
-              <option value="Tel Aviv"         {% if location == 'Tel Aviv'         %}selected{% endif %}>Tel Aviv</option>
-              <option value="Ramat Gan"        {% if location == 'Ramat Gan'        %}selected{% endif %}>Ramat Gan</option>
-              <option value="Givatayim"        {% if location == 'Givatayim'        %}selected{% endif %}>Givatayim</option>
-              <option value="Bnei Brak"        {% if location == 'Bnei Brak'        %}selected{% endif %}>Bnei Brak</option>
-              <option value="Bat Yam"          {% if location == 'Bat Yam'          %}selected{% endif %}>Bat Yam</option>
-              <option value="Holon"            {% if location == 'Holon'            %}selected{% endif %}>Holon</option>
-              <option value="Or Yehuda"        {% if location == 'Or Yehuda'        %}selected{% endif %}>Or Yehuda</option>
-              <option value="Yehud"            {% if location == 'Yehud'            %}selected{% endif %}>Yehud</option>
-            </optgroup>
-            <optgroup label="Sharon &amp; North Center">
-              <option value="Herzliya"         {% if location == 'Herzliya'         %}selected{% endif %}>Herzliya</option>
-              <option value="Ramat HaSharon"   {% if location == 'Ramat HaSharon'   %}selected{% endif %}>Ramat HaSharon</option>
-              <option value="Raanana"          {% if location == 'Raanana'          %}selected{% endif %}>Ra'anana</option>
-              <option value="Kfar Saba"        {% if location == 'Kfar Saba'        %}selected{% endif %}>Kfar Saba</option>
-              <option value="Hod HaSharon"     {% if location == 'Hod HaSharon'     %}selected{% endif %}>Hod HaSharon</option>
-              <option value="Netanya"          {% if location == 'Netanya'          %}selected{% endif %}>Netanya</option>
-              <option value="Even Yehuda"      {% if location == 'Even Yehuda'      %}selected{% endif %}>Even Yehuda</option>
-            </optgroup>
-            <optgroup label="East Center">
-              <option value="Petah Tikva"      {% if location == 'Petah Tikva'      %}selected{% endif %}>Petah Tikva</option>
-              <option value="Lod"              {% if location == 'Lod'              %}selected{% endif %}>Lod</option>
-              <option value="Ramla"            {% if location == 'Ramla'            %}selected{% endif %}>Ramla</option>
-              <option value="Modi'in"          {% if location == "Modi'in"          %}selected{% endif %}>Modi'in</option>
-            </optgroup>
-            <optgroup label="South Center">
-              <option value="Rishon LeZion"    {% if location == 'Rishon LeZion'    %}selected{% endif %}>Rishon LeZion</option>
-              <option value="Ness Ziona"       {% if location == 'Ness Ziona'       %}selected{% endif %}>Ness Ziona</option>
-              <option value="Rehovot"          {% if location == 'Rehovot'          %}selected{% endif %}>Rehovot</option>
-              <option value="Ashdod"           {% if location == 'Ashdod'           %}selected{% endif %}>Ashdod</option>
-            </optgroup>
-          </select>
+
+        <div class="panel-filters">
+          <div class="filter-field">
+            <label for="location">Location</label>
+            <select id="location" name="location">
+              <option value="">Any location</option>
+              <option value="Remote"           {% if location == 'Remote'           %}selected{% endif %}>Remote</option>
+              <option value="Central Israel"   {% if location == 'Central Israel'   %}selected{% endif %}>All Central Israel Cities</option>
+              <optgroup label="Tel Aviv &amp; Inner Ring">
+                <option value="Tel Aviv"         {% if location == 'Tel Aviv'         %}selected{% endif %}>Tel Aviv</option>
+                <option value="Ramat Gan"        {% if location == 'Ramat Gan'        %}selected{% endif %}>Ramat Gan</option>
+                <option value="Givatayim"        {% if location == 'Givatayim'        %}selected{% endif %}>Givatayim</option>
+                <option value="Bnei Brak"        {% if location == 'Bnei Brak'        %}selected{% endif %}>Bnei Brak</option>
+                <option value="Bat Yam"          {% if location == 'Bat Yam'          %}selected{% endif %}>Bat Yam</option>
+                <option value="Holon"            {% if location == 'Holon'            %}selected{% endif %}>Holon</option>
+                <option value="Or Yehuda"        {% if location == 'Or Yehuda'        %}selected{% endif %}>Or Yehuda</option>
+                <option value="Yehud"            {% if location == 'Yehud'            %}selected{% endif %}>Yehud</option>
+              </optgroup>
+              <optgroup label="Sharon &amp; North Center">
+                <option value="Herzliya"         {% if location == 'Herzliya'         %}selected{% endif %}>Herzliya</option>
+                <option value="Ramat HaSharon"   {% if location == 'Ramat HaSharon'   %}selected{% endif %}>Ramat HaSharon</option>
+                <option value="Raanana"          {% if location == 'Raanana'          %}selected{% endif %}>Ra'anana</option>
+                <option value="Kfar Saba"        {% if location == 'Kfar Saba'        %}selected{% endif %}>Kfar Saba</option>
+                <option value="Hod HaSharon"     {% if location == 'Hod HaSharon'     %}selected{% endif %}>Hod HaSharon</option>
+                <option value="Netanya"          {% if location == 'Netanya'          %}selected{% endif %}>Netanya</option>
+                <option value="Even Yehuda"      {% if location == 'Even Yehuda'      %}selected{% endif %}>Even Yehuda</option>
+              </optgroup>
+              <optgroup label="East Center">
+                <option value="Petah Tikva"      {% if location == 'Petah Tikva'      %}selected{% endif %}>Petah Tikva</option>
+                <option value="Lod"              {% if location == 'Lod'              %}selected{% endif %}>Lod</option>
+                <option value="Ramla"            {% if location == 'Ramla'            %}selected{% endif %}>Ramla</option>
+                <option value="Modi'in"          {% if location == "Modi'in"          %}selected{% endif %}>Modi'in</option>
+              </optgroup>
+              <optgroup label="South Center">
+                <option value="Rishon LeZion"    {% if location == 'Rishon LeZion'    %}selected{% endif %}>Rishon LeZion</option>
+                <option value="Ness Ziona"       {% if location == 'Ness Ziona'       %}selected{% endif %}>Ness Ziona</option>
+                <option value="Rehovot"          {% if location == 'Rehovot'          %}selected{% endif %}>Rehovot</option>
+                <option value="Ashdod"           {% if location == 'Ashdod'           %}selected{% endif %}>Ashdod</option>
+              </optgroup>
+            </select>
+          </div>
+
+          <div class="filter-field">
+            <label for="skills">Skills</label>
+            <input type="text" id="skills" name="skills"
+                   placeholder="e.g. Python, React"
+                   value="{{ skills or '' }}" />
+          </div>
+
+          <div class="filter-field">
+            <label for="experience_years">Years of Experience</label>
+            <input type="number" id="experience_years" name="experience_years"
+                   min="0" max="40"
+                   value="{{ experience_years if experience_years is not none else 0 }}" />
+          </div>
+
+          <div class="filter-actions">
+            <button id="btn-search" type="submit" class="btn btn-primary">Search Jobs</button>
+            <button id="btn-stop" type="button" class="btn btn-stop" style="display:none">&#9632; Stop</button>
+          </div>
         </div>
-        <div class="field">
-          <label for="skills">Skills</label>
-          <input
-            type="text"
-            id="skills"
-            name="skills"
-            placeholder="e.g. Python, React"
-            value="{{ skills or '' }}"
-          />
-        </div>
-        <div class="field field-experience">
-          <label for="experience_years">Years of Experience</label>
-          <input
-            type="number"
-            id="experience_years"
-            name="experience_years"
-            min="0"
-            max="40"
-            value="{{ experience_years if experience_years is not none else 0 }}"
-          />
-        </div>
+
       </div>
-      <button type="submit" class="btn-search">Search Jobs</button>
     </form>
+
+    <div id="filter-summary" class="filter-summary" style="display:none"></div>
+
+    <section id="stream-results" class="results-section" style="display:none">
+      <h2>
+        Results
+        <span id="stream-count" class="count">0 found</span>
+        <span id="stream-status" class="searching-indicator">Searching…</span>
+      </h2>
+      <div id="stream-error" class="alert alert-error" style="display:none"></div>
+      <div class="table-wrap">
+        <table class="results-table">
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Careers Page</th>
+              <th>Source</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="stream-body"></tbody>
+        </table>
+      </div>
+      <p id="stream-empty" class="no-results" style="display:none">No results found. Try a broader job title or different location.</p>
+    </section>
 
     {% if error %}
       <div class="alert alert-error">{{ error }}</div>
@@ -192,62 +199,58 @@
 
     {% if results is defined %}
       <section class="results-section">
-        <h2>
-          Results
-          <span class="count">{{ results | length }} found</span>
-        </h2>
-
+        <h2>Results <span class="count">{{ results | length }} found</span></h2>
         {% if results %}
-          <table class="results-table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Careers Page</th>
-                <th>Location</th>
-                <th>Source</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for r in results %}
-              <tr {% if r.application is defined %}class="row-applied"{% endif %}>
-                <td class="company-name">{{ r.company_name or r.name }}</td>
-                <td>
-                  <a href="{{ r.careers_url }}" target="_blank" rel="noopener noreferrer">
-                    {{ r.careers_url }}
-                  </a>
-                </td>
-                <td>{{ r.location or '&mdash;' }}</td>
-                <td>
-                  {% if r.from_cache %}
-                    <span class="badge badge-cached">From database</span>
-                  {% elif r.source == 'LinkedIn' %}
-                    <span class="badge badge-linkedin">LinkedIn</span>
-                  {% elif r.source == 'Google' %}
-                    <span class="badge badge-google">Google</span>
-                  {% else %}
-                    <span class="badge badge-ddg">DuckDuckGo</span>
-                  {% endif %}
-                </td>
-                <td class="status-cell">
-                  {% if r.application is defined %}
-                    <span class="applied-notice">
-                      You sent your resume for <strong>{{ r.application.position }}</strong>
-                      on {{ r.application.applied_at[:10] }}
-                    </span>
-                  {% else %}
-                    <form method="POST" action="/mark-applied" class="apply-form">
-                      <input type="hidden" name="company_name" value="{{ r.company_name or r.name }}">
-                      <input type="hidden" name="careers_url"  value="{{ r.careers_url }}">
-                      <input type="text"   name="position" placeholder="Position title" required class="apply-input">
-                      <button type="submit" class="btn-apply">Mark Applied</button>
-                    </form>
-                  {% endif %}
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div class="table-wrap">
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Careers Page</th>
+                  <th>Source</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for r in results %}
+                <tr>
+                  <td class="company-name">
+                    {{ r.company_name or r.name }}
+                    {% if r.application is defined %}
+                      <span class="applied-dot" data-pos="{{ r.application.position }}"></span>
+                    {% endif %}
+                  </td>
+                  <td><a href="{{ r.careers_url }}" target="_blank" rel="noopener noreferrer">{{ r.careers_url }}</a></td>
+                  <td>
+                    {% if r.from_cache %}
+                      <span class="badge badge-cached">Cached</span>
+                    {% elif r.source == 'LinkedIn' %}
+                      <span class="badge badge-linkedin">LinkedIn</span>
+                    {% elif r.source == 'Google' %}
+                      <span class="badge badge-google">Google</span>
+                    {% else %}
+                      <span class="badge badge-ddg">DuckDuckGo</span>
+                    {% endif %}
+                  </td>
+                  <td class="status-cell">
+                    {% if is_guest %}
+                      <a href="{{ url_for('signin') }}" class="btn-signin-prompt">Sign in to track</a>
+                    {% else %}
+                      <form method="POST" action="/mark-applied" class="apply-form"
+                            data-company="{{ r.company_name or r.name }}"
+                            data-url="{{ r.careers_url }}">
+                        <input type="hidden" name="company_name" value="{{ r.company_name or r.name }}">
+                        <input type="hidden" name="careers_url"  value="{{ r.careers_url }}">
+                        <input type="text"   name="position" placeholder="Position title" required class="apply-input">
+                        <button type="submit" class="btn-apply{% if r.application is defined %} btn-apply-again{% endif %}">Mark Applied</button>
+                      </form>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         {% else %}
           <p class="no-results">No results found. Try a broader job title or different location.</p>
         {% endif %}
@@ -255,79 +258,119 @@
     {% endif %}
 
     {% if all_companies is defined %}
-      <section class="results-section">
-        <h2>All Saved Companies <span class="count">{{ all_companies | length }}</span></h2>
+      <section class="results-section" id="companies-section">
+        <h2>All Saved Companies <span class="count">{{ all_companies | length }}</span><button class="section-close" onclick="document.getElementById('companies-section').style.display='none'" title="Close">&#x2715;</button></h2>
         {% if all_companies %}
-          <table class="results-table">
-            <thead>
-              <tr>
-                <th>Company</th>
-                <th>Careers Page</th>
-                <th>Role Tags</th>
-                <th>Location</th>
-                <th>Added</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for c in all_companies %}
-              <tr>
-                <td class="company-name">{{ c.name }}</td>
-                <td><a href="{{ c.careers_url }}" target="_blank" rel="noopener noreferrer">{{ c.careers_url }}</a></td>
-                <td>{{ c.job_titles or '—' }}</td>
-                <td>{{ c.location or '—' }}</td>
-                <td class="date">{{ c.added_at[:10] if c.added_at else '—' }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+          <div class="table-wrap">
+            <table class="results-table">
+              <thead>
+                <tr>
+                  <th>Company</th>
+                  <th>Careers Page</th>
+                  <th>Role Tags</th>
+                  <th>Added</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in all_companies %}
+                <tr>
+                  <td class="company-name">{{ c.name }}</td>
+                  <td><a href="{{ c.careers_url }}" target="_blank" rel="noopener noreferrer">{{ c.careers_url }}</a></td>
+                  <td>{{ c.job_titles or '—' }}</td>
+                  <td class="date">{{ c.added_at[:10] if c.added_at else '—' }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
         {% else %}
           <p class="no-results">No companies saved yet. Run a search first.</p>
         {% endif %}
       </section>
     {% endif %}
 
-    {% if all_applications is defined %}
-      <section class="results-section">
-        <h2>My Applications <span class="count">{{ all_applications | length }}</span></h2>
-        {% if all_applications %}
+    <!-- My Applications section (toggled by footer link) -->
+    <section id="applications-section" class="results-section" style="display:none">
+      <h2>My Applications <span class="count">{{ panel_applications | length }}</span><button class="section-close" onclick="document.getElementById('applications-section').style.display='none'" title="Close">&#x2715;</button></h2>
+
+      {% if not is_guest %}
+      <div class="manual-add-box">
+        <h3 class="manual-add-title">Add Application Manually</h3>
+        <div class="manual-add-fields">
+          <input type="text" id="manual-company" placeholder="Company name *" />
+          <input type="url"  id="manual-url"     placeholder="Careers URL (optional)" />
+          <input type="text" id="manual-position" placeholder="Position applied for *" />
+          <button type="button" class="btn btn-primary" onclick="submitManualApp()">Add</button>
+        </div>
+        <div id="manual-msg" class="manual-msg" style="display:none"></div>
+        <div id="dup-warning" class="dup-warning" style="display:none">
+          <p>&#9888; You already applied to <strong id="dup-company-name"></strong> for
+            <strong id="dup-pos"></strong> on <span id="dup-date"></span>.</p>
+          <div class="dup-actions">
+            <button class="btn btn-primary" onclick="confirmDuplicate()">Add Anyway</button>
+            <button class="btn btn-ghost" onclick="cancelDuplicate()">Cancel</button>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      {% if panel_applications %}
+        <div class="table-wrap">
           <table class="results-table">
             <thead>
-              <tr>
-                <th>Company</th>
-                <th>Position</th>
-                <th>Careers Page</th>
-                <th>Date Sent</th>
-              </tr>
+              <tr><th>Company</th><th>Position</th><th>Careers Page</th><th>Date Applied</th></tr>
             </thead>
             <tbody>
-              {% for a in all_applications %}
+              {% for a in panel_applications %}
               <tr>
                 <td class="company-name">{{ a.company_name }}</td>
                 <td>{{ a.position }}</td>
-                <td><a href="{{ a.careers_url }}" target="_blank" rel="noopener noreferrer">{{ a.careers_url }}</a></td>
+                <td>
+                  {% if a.careers_url %}
+                    <a href="{{ a.careers_url }}" target="_blank" rel="noopener noreferrer">{{ a.careers_url }}</a>
+                  {% else %}—{% endif %}
+                </td>
                 <td class="date">{{ a.applied_at[:10] }}</td>
               </tr>
               {% endfor %}
             </tbody>
           </table>
-        {% else %}
-          <p class="no-results">No applications tracked yet. Mark a company as applied from the search results.</p>
-        {% endif %}
-      </section>
-    {% endif %}
+        </div>
+      {% else %}
+        <p class="no-results">No applications tracked yet.{% if not is_guest %} Mark a company from the search results, or add one manually above.{% endif %}</p>
+      {% endif %}
+    </section>
 
     <footer>
       <a href="/">New Search</a>
       &nbsp;|&nbsp;
       <a href="/companies">Saved Companies</a>
       &nbsp;|&nbsp;
-      <a href="/applications">My Applications</a>
+      <a href="#" id="footer-applications-link">
+        My Applications{% if panel_applications %} <span class="footer-count">{{ panel_applications | length }}</span>{% endif %}
+      </a>
     </footer>
   </div>
 
   <div id="job-tooltip" class="job-tooltip"></div>
 
+  <!-- Duplicate warning modal for inline apply forms -->
+  <div id="inline-dup-overlay" class="modal-overlay" style="display:none">
+    <div class="modal-box">
+      <p>&#9888; You already applied to <strong id="inline-dup-company"></strong> for
+        <strong id="inline-dup-pos"></strong> on <span id="inline-dup-date"></span>.</p>
+      <p class="modal-sub">Do you want to add another application?</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" id="inline-dup-confirm">Add Anyway</button>
+        <button class="btn btn-ghost"   id="inline-dup-cancel">Cancel</button>
+      </div>
+    </div>
+  </div>
+
   <script>
+    const IS_GUEST = {{ 'true' if is_guest else 'false' }};
+
+    // ── Tooltip ───────────────────────────────────────────────────
     const tooltip = document.getElementById('job-tooltip');
     document.querySelectorAll('.checkbox-item[data-tooltip]').forEach(el => {
       el.addEventListener('mouseenter', e => {
@@ -338,10 +381,272 @@
         tooltip.style.left = (e.clientX + 16) + 'px';
         tooltip.style.top  = (e.clientY - 36) + 'px';
       });
-      el.addEventListener('mouseleave', () => {
-        tooltip.style.display = 'none';
-      });
+      el.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
     });
+
+    // ── Streaming search ──────────────────────────────────────────
+    const form        = document.getElementById('search-form');
+    const btnSearch   = document.getElementById('btn-search');
+    const btnStop     = document.getElementById('btn-stop');
+    const section     = document.getElementById('stream-results');
+    const countEl     = document.getElementById('stream-count');
+    const statusEl    = document.getElementById('stream-status');
+    const errorEl     = document.getElementById('stream-error');
+    const tbody       = document.getElementById('stream-body');
+    const emptyEl     = document.getElementById('stream-empty');
+    const filterSummary = document.getElementById('filter-summary');
+
+    let controller = null;
+
+    function esc(s) {
+      return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function badge(r) {
+      if (r.from_cache)          return '<span class="badge badge-cached">Cached</span>';
+      if (r.source==='LinkedIn') return '<span class="badge badge-linkedin">LinkedIn</span>';
+      if (r.source==='Google')   return '<span class="badge badge-google">Google</span>';
+      return '<span class="badge badge-ddg">DuckDuckGo</span>';
+    }
+
+    function makeRow(r) {
+      const tr = document.createElement('tr');
+      const name = esc(r.company_name||r.name||'');
+      const dot  = r.application
+        ? `<span class="applied-dot" data-pos="${esc(r.application.position)}"></span>`
+        : '';
+
+      let statusHtml;
+      if (IS_GUEST) {
+        statusHtml = `<a href="/signin" class="btn-signin-prompt">Sign in to track</a>`;
+      } else {
+        const btnClass = r.application ? 'btn-apply btn-apply-again' : 'btn-apply';
+        statusHtml = `<form method="POST" action="/mark-applied" class="apply-form"
+            data-company="${name}" data-url="${esc(r.careers_url)}">
+          <input type="hidden" name="company_name" value="${name}">
+          <input type="hidden" name="careers_url"  value="${esc(r.careers_url)}">
+          <input type="text"   name="position" placeholder="Position title" required class="apply-input">
+          <button type="submit" class="${btnClass}">Mark Applied</button>
+        </form>`;
+      }
+
+      tr.innerHTML = `
+        <td class="company-name">${name}${dot}</td>
+        <td><a href="${esc(r.careers_url)}" target="_blank" rel="noopener noreferrer">${esc(r.careers_url)}</a></td>
+        <td>${badge(r)}</td>
+        <td class="status-cell">${statusHtml}</td>`;
+      return tr;
+    }
+
+    function buildSummary() {
+      const titles = [...form.querySelectorAll('input[name="job_title"]:checked')].map(el => `"${el.value}"`);
+      const loc    = form.querySelector('[name="location"]').value;
+      const skills = form.querySelector('[name="skills"]').value.trim();
+      const exp    = parseInt(form.querySelector('[name="experience_years"]').value) || 0;
+      const parts  = [...titles];
+      if (loc)    parts.push(loc);
+      if (skills) parts.push(skills);
+      if (exp > 0) parts.push(`${exp} yr${exp !== 1 ? 's' : ''} exp`);
+      return parts.join(' &nbsp;·&nbsp; ');
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (controller) controller.abort();
+      controller = new AbortController();
+
+      btnSearch.disabled = true;
+      btnStop.style.display = 'inline-block';
+      section.style.display = 'block';
+      tbody.innerHTML = '';
+      countEl.textContent = '0 found';
+      statusEl.style.display = 'inline';
+      errorEl.style.display = 'none';
+      emptyEl.style.display = 'none';
+      filterSummary.innerHTML = 'Searching: ' + buildSummary();
+      filterSummary.style.display = 'block';
+
+      let count = 0;
+
+      try {
+        const resp = await fetch('/search/stream', {
+          method: 'POST',
+          body: new FormData(form),
+          signal: controller.signal,
+        });
+
+        const reader = resp.body.getReader();
+        const dec = new TextDecoder();
+        let buf = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += dec.decode(value, { stream: true });
+          const parts = buf.split('\n\n');
+          buf = parts.pop();
+          for (const part of parts) {
+            const line = part.trim();
+            if (!line.startsWith('data: ')) continue;
+            const msg = JSON.parse(line.slice(6));
+            if (msg.type === 'result') {
+              tbody.appendChild(makeRow(msg.data));
+              countEl.textContent = `${++count} found`;
+            } else if (msg.type === 'error') {
+              errorEl.textContent = msg.message;
+              errorEl.style.display = 'block';
+            } else if (msg.type === 'done') {
+              if (count === 0) emptyEl.style.display = 'block';
+            }
+          }
+        }
+      } catch(err) {
+        if (err.name !== 'AbortError') console.error(err);
+      } finally {
+        controller = null;
+        btnSearch.disabled = false;
+        btnStop.style.display = 'none';
+        statusEl.style.display = 'none';
+      }
+    });
+
+    btnStop.addEventListener('click', () => { if (controller) controller.abort(); });
+
+    // ── My Applications toggle ────────────────────────────────────
+    document.getElementById('footer-applications-link').addEventListener('click', (e) => {
+      e.preventDefault();
+      const sec = document.getElementById('applications-section');
+      const visible = sec.style.display !== 'none';
+      sec.style.display = visible ? 'none' : 'block';
+      if (!visible) sec.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // ── Inline apply form (AJAX, no page reload) ─────────────────
+    let pendingForm = null;
+
+    async function doApply(f, force = false) {
+      const company  = f.dataset.company || f.querySelector('[name="company_name"]').value;
+      const url      = f.dataset.url     || f.querySelector('[name="careers_url"]').value;
+      const position = f.querySelector('[name="position"]').value.trim();
+      if (!position) return;
+
+      if (!force) {
+        try {
+          const res  = await fetch(`/check-applied?company_name=${encodeURIComponent(company)}&careers_url=${encodeURIComponent(url)}`);
+          const data = await res.json();
+          if (data.duplicate && data.previous) {
+            pendingForm = f;
+            document.getElementById('inline-dup-company').textContent = data.previous.company_name;
+            document.getElementById('inline-dup-pos').textContent     = data.previous.position;
+            document.getElementById('inline-dup-date').textContent    = data.previous.applied_at.slice(0,10);
+            document.getElementById('inline-dup-overlay').style.display = 'flex';
+            return;
+          }
+        } catch { /* fall through to submit */ }
+      }
+
+      try {
+        const res  = await fetch('/add-application', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_name: company, careers_url: url, position }),
+        });
+        const data = await res.json();
+        if (data.success || data.duplicate) {
+          const row      = f.closest('tr');
+          const nameCell = row && row.querySelector('.company-name');
+          if (nameCell && !nameCell.querySelector('.applied-dot')) {
+            const dot = document.createElement('span');
+            dot.className    = 'applied-dot';
+            dot.dataset.pos  = position;
+            nameCell.appendChild(dot);
+          }
+          const btn = f.querySelector('button');
+          btn.classList.add('btn-apply-again');
+          btn.textContent = 'Applied ✓';
+          f.querySelector('[name="position"]').value = '';
+          setTimeout(() => { btn.textContent = 'Mark Applied'; }, 2000);
+        }
+      } catch (err) { console.error(err); }
+    }
+
+    document.addEventListener('submit', async (e) => {
+      if (!e.target.classList.contains('apply-form')) return;
+      e.preventDefault();
+      doApply(e.target);
+    });
+
+    document.getElementById('inline-dup-confirm').addEventListener('click', () => {
+      document.getElementById('inline-dup-overlay').style.display = 'none';
+      if (pendingForm) { doApply(pendingForm, true); pendingForm = null; }
+    });
+    document.getElementById('inline-dup-cancel').addEventListener('click', () => {
+      document.getElementById('inline-dup-overlay').style.display = 'none';
+      pendingForm = null;
+    });
+
+    // ── Manual application add ────────────────────────────────────
+    let pendingManualData = null;
+
+    async function submitManualApp(force = false) {
+      const company  = document.getElementById('manual-company').value.trim();
+      const url      = document.getElementById('manual-url').value.trim();
+      const position = document.getElementById('manual-position').value.trim();
+      const msg      = document.getElementById('manual-msg');
+      const dupBox   = document.getElementById('dup-warning');
+
+      if (!company || !position) {
+        showManualMsg('Company name and position are required.', 'error');
+        return;
+      }
+
+      if (!force) {
+        const res = await fetch(`/check-applied?company_name=${encodeURIComponent(company)}&careers_url=${encodeURIComponent(url)}`);
+        const data = await res.json();
+        if (data.duplicate && data.previous) {
+          document.getElementById('dup-company-name').textContent = data.previous.company_name;
+          document.getElementById('dup-pos').textContent = data.previous.position;
+          document.getElementById('dup-date').textContent = data.previous.applied_at.slice(0,10);
+          pendingManualData = { company, url, position };
+          dupBox.style.display = 'block';
+          return;
+        }
+      }
+
+      dupBox.style.display = 'none';
+      const res = await fetch('/add-application', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ company_name: company, careers_url: url, position }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        showManualMsg('Application added!', 'success');
+        document.getElementById('manual-company').value = '';
+        document.getElementById('manual-url').value = '';
+        document.getElementById('manual-position').value = '';
+        pendingManualData = null;
+        setTimeout(() => location.reload(), 800);
+      } else if (data.error) {
+        showManualMsg(data.error, 'error');
+      }
+    }
+
+    function confirmDuplicate() {
+      if (pendingManualData) submitManualApp(true);
+    }
+    function cancelDuplicate() {
+      document.getElementById('dup-warning').style.display = 'none';
+      pendingManualData = null;
+    }
+
+    function showManualMsg(text, type) {
+      const el = document.getElementById('manual-msg');
+      el.textContent = text;
+      el.className = 'manual-msg manual-msg-' + type;
+      el.style.display = 'block';
+      if (type === 'success') setTimeout(() => { el.style.display = 'none'; }, 3000);
+    }
   </script>
 </body>
 </html>

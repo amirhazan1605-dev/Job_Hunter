@@ -134,9 +134,22 @@ def _search_google(query: str) -> list[dict]:
         return [{"error": f"Google: {e}"}]
 
 
-def _search_linkedin(job_title: str, location: str) -> list[dict]:
+def _experience_to_linkedin(years: int) -> str:
+    if years == 0: return "2"
+    if years <= 2: return "3"
+    if years <= 5: return "4"
+    return "5"
+
+
+def _search_linkedin(job_title: str, location: str, skills: str = "", experience_years: int = 0) -> list[dict]:
     try:
-        params = {"keywords": job_title, "location": location or "Israel", "start": 0}
+        keywords = f"{job_title} {skills}".strip()
+        params = {
+            "keywords": keywords,
+            "location": location or "Israel",
+            "f_E": _experience_to_linkedin(experience_years),
+            "start": 0,
+        }
         r = requests.get(_LINKEDIN_GUEST, params=params, headers=_HEADERS, timeout=10)
         soup = BeautifulSoup(r.text, "html.parser")
         seen_urls = set()
@@ -148,6 +161,8 @@ def _search_linkedin(job_title: str, location: str) -> list[dict]:
                 continue
             company_name = company_el.get_text(strip=True)
             job_url = link_el.get("href", "").split("?")[0]
+            location_el = card.select_one(".job-search-card__location")
+            job_location = location_el.get_text(strip=True) if location_el else (location or "Not specified")
             if job_url and job_url not in seen_urls:
                 seen_urls.add(job_url)
                 results.append({
@@ -155,6 +170,7 @@ def _search_linkedin(job_title: str, location: str) -> list[dict]:
                     "careers_url": job_url,
                     "from_cache": False,
                     "source": "LinkedIn",
+                    "location": job_location,
                 })
         return results
     except Exception as e:
@@ -176,7 +192,7 @@ def search_jobs(job_title: str, location: str, skills: str, experience_years: in
         futures = {
             executor.submit(_search_ddg, query),
             executor.submit(_search_google, query),
-            executor.submit(_search_linkedin, job_title, location),
+            executor.submit(_search_linkedin, job_title, location, skills, experience_years),
         }
         for future in as_completed(futures):
             all_results.extend(future.result())

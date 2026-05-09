@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Job Hunter — {% if mode == 'signup' %}Create Account{% else %}Sign In{% endif %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body class="auth-body">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <span class="auth-logo-icon">&#128269;</span>
+      <h1 class="auth-logo-text">Job Hunter</h1>
+    </div>
+
+    {% if error %}
+      <div class="auth-error">{{ error }}</div>
+    {% endif %}
+
+    {% if mode == 'signup' %}
+      <h2 class="auth-title">Create Account</h2>
+      <form method="POST" action="{{ url_for('signup') }}" class="auth-form">
+        <div class="auth-row">
+          <div class="auth-field">
+            <label>First Name</label>
+            <input type="text" name="first_name" required autocomplete="given-name" />
+          </div>
+          <div class="auth-field">
+            <label>Last Name</label>
+            <input type="text" name="last_name" required autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password <span class="auth-hint">(min. 4 characters)</span></label>
+          <input type="password" name="password" required autocomplete="new-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+      </form>
+      <p class="auth-switch">Already have an account? <a href="{{ url_for('signin') }}">Sign in</a></p>
+
+    {% else %}
+      <h2 class="auth-title">Welcome Back</h2>
+      <form method="POST" action="{{ url_for('signin') }}" class="auth-form">
+        <div class="auth-row">
+          <div class="auth-field">
+            <label>First Name</label>
+            <input type="text" name="first_name" required autocomplete="given-name" />
+          </div>
+          <div class="auth-field">
+            <label>Last Name</label>
+            <input type="text" name="last_name" required autocomplete="family-name" />
+          </div>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input type="password" name="password" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block">Sign In</button>
+      </form>
+      <p class="auth-switch">No account? <a href="{{ url_for('signup') }}">Create one</a></p>
+    {% endif %}
+
+    <div class="auth-back">
+      <a href="{{ url_for('landing') }}">&larr; Back</a>
+    </div>
+  </div>
+</body>
+</html>
